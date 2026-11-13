@@ -1,0 +1,140 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Data Domain Autosupport",
+  "scopeName": "source.ddasup",
+  "patterns": [
+    { "include": "#sectionHeader" },
+    { "include": "#generated" },
+    { "include": "#separator" },
+    { "include": "#banner" },
+    { "include": "#shareBlock" },
+    { "include": "#infoKeyValue" },
+    { "include": "#registryKeyValue" },
+    { "include": "#syslogPrefix" },
+    { "include": "#inline" }
+  ],
+  "repository": {
+    "sectionHeader": {
+      "match": "^(={5,})\\s+(.+?)\\s+(={5,})\\s*$",
+      "captures": {
+        "1": { "name": "punctuation.definition.heading.ddasup" },
+        "2": { "name": "markup.heading.section.ddasup entity.name.section.ddasup" },
+        "3": { "name": "punctuation.definition.heading.ddasup" }
+      }
+    },
+    "generated": {
+      "match": "^(GENERATED:)\\s*(.*)$",
+      "captures": {
+        "1": { "name": "comment.line.generated.ddasup" },
+        "2": { "name": "comment.line.generated.ddasup constant.other.date.ddasup" }
+      }
+    },
+    "separator": {
+      "match": "^\\s*-[-\\s]*-\\s*$|^\\s*=[=\\s]*=\\s*$|^\\s*\\*{3,}\\s*$",
+      "name": "comment.separator.ddasup"
+    },
+    "banner": {
+      "match": "^\\s*(\\*{3,})(.*?)(\\*{3,})?\\s*$",
+      "captures": {
+        "1": { "name": "punctuation.definition.banner.ddasup" },
+        "2": { "name": "markup.heading.minor.ddasup", "patterns": [{ "include": "#inline" }] },
+        "3": { "name": "punctuation.definition.banner.ddasup" }
+      }
+    },
+    "shareBlock": {
+      "match": "^(-{3,})\\s+(.+?)\\s+(-{3,})\\s*$",
+      "captures": {
+        "1": { "name": "comment.separator.ddasup" },
+        "2": { "name": "markup.heading.minor.ddasup" },
+        "3": { "name": "comment.separator.ddasup" }
+      }
+    },
+    "infoKeyValue": {
+      "match": "^([A-Z][A-Z0-9_]{2,})(=)(.*)$",
+      "captures": {
+        "1": { "name": "variable.other.key.ddasup" },
+        "2": { "name": "keyword.operator.assignment.ddasup" },
+        "3": { "name": "string.unquoted.value.ddasup", "patterns": [{ "include": "#inline" }] }
+      }
+    },
+    "registryKeyValue": {
+      "match": "^([a-z][\\w-]*(?:\\.[\\w\\[\\]-]+)+)\\s(=)\\s?(.*)$",
+      "captures": {
+        "1": { "name": "variable.other.key.registry.ddasup" },
+        "2": { "name": "keyword.operator.assignment.ddasup" },
+        "3": { "name": "string.unquoted.value.ddasup", "patterns": [{ "include": "#inline" }] }
+      }
+    },
+    "syslogPrefix": {
+      "match": "^(\\w{3}\\s+\\d{1,2} \\d\\d:\\d\\d:\\d\\d)\\s+(\\S+)\\s+([^\\s:\\[]+)(?:(\\[)(\\d+)(\\]))?(:)",
+      "captures": {
+        "1": { "name": "constant.other.date.ddasup" },
+        "2": { "name": "entity.name.host.ddasup" },
+        "3": { "name": "entity.name.function.process.ddasup" },
+        "5": { "name": "constant.numeric.pid.ddasup" },
+        "7": { "name": "punctuation.separator.ddasup" }
+      }
+    },
+    "inline": {
+      "patterns": [
+        { "include": "#severity" },
+        { "include": "#evt" },
+        { "include": "#dates" },
+        { "include": "#status" },
+        { "include": "#network" },
+        { "include": "#path" },
+        { "include": "#numbers" }
+      ]
+    },
+    "severity": {
+      "patterns": [
+        { "match": "\\b(CRITICAL|EMERGENCY|EMERG|ALERT|FATAL|CRIT|PANIC)\\b", "name": "keyword.severity.critical.ddasup" },
+        { "match": "\\b(ERROR|ERR|Error|FAILED|Failed|failed|FAILURE|failure|Failure)\\b", "name": "keyword.severity.error.ddasup" },
+        { "match": "\\b(WARNING|WARN|Warning|warning)\\b", "name": "keyword.severity.warning.ddasup" },
+        { "match": "\\b(NOTICE|INFO)\\b", "name": "keyword.severity.info.ddasup" },
+        { "match": "\\b(DEBUG|TRACE)\\b", "name": "keyword.severity.debug.ddasup" }
+      ]
+    },
+    "evt": {
+      "patterns": [
+        { "match": "\\bEVT-[A-Z0-9]+-\\d+\\b", "name": "entity.name.tag.evt.ddasup" },
+        { "match": "\\b[pP]\\d+-\\d+\\b(?=\\s{2,})", "name": "entity.name.tag.alertid.ddasup" }
+      ]
+    },
+    "dates": {
+      "patterns": [
+        { "match": "\\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2} \\d\\d:\\d\\d(?::\\d\\d(?:\\.\\d+)?)?(?: [A-Z]{2,5})?(?: \\d{4})?\\b", "name": "constant.other.date.ddasup" },
+        { "match": "\\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2} (?:\\d\\d:\\d\\d:\\d\\d)(?: [A-Z]{2,5})?(?: \\d{4})?\\b", "name": "constant.other.date.ddasup" },
+        { "match": "\\b\\d{4}[-/]\\d\\d[-/]\\d\\d(?:[ T]\\d\\d:\\d\\d(?::\\d\\d)?(?:\\.\\d+)?(?:Z|[+-]\\d\\d:?\\d\\d| UTC)?)?\\b", "name": "constant.other.date.ddasup" },
+        { "match": "\\b\\d{8}-\\d{6}\\b", "name": "constant.other.date.ddasup" }
+      ]
+    },
+    "status": {
+      "patterns": [
+        { "match": "\\b(offline|Offline|OFFLINE|down|Down|DOWN|degraded|Degraded|DEGRADED|missing|Missing|absent|unavailable|Unavailable|expired|Expired|not ok|NOT OK|unhealthy|Unhealthy|lost|Lost)\\b", "name": "markup.deleted.status.bad.ddasup" },
+        { "match": "\\b(online|Online|ONLINE|Normal|NORMAL|OK|healthy|Healthy|running|Running|active|Active|In Use|operational|Up)\\b", "name": "markup.inserted.status.good.ddasup" },
+        { "match": "\\b(enabled|Enabled|disabled|Disabled|Standby|standby|Spare|true|false|TRUE|FALSE|Yes|No|YES|NO|n/a|NULL|Unspecified)\\b", "name": "constant.language.ddasup" }
+      ]
+    },
+    "network": {
+      "patterns": [
+        { "match": "(?:::ffff:)?\\b\\d{1,3}(?:\\.\\d{1,3}){3}(?:/\\d{1,2})?(?::\\d+)?\\b", "name": "string.other.ip.ddasup" },
+        { "match": "\\b(?:[0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}(?:(?::[0-9a-fA-F]{2}){2})?\\b", "name": "string.other.mac.ddasup" },
+        { "match": "\\b[\\w.+-]+@[\\w-]+(?:\\.[\\w-]+)+\\b", "name": "string.other.email.ddasup" }
+      ]
+    },
+    "path": {
+      "match": "(?<![\\w/.:])/(?:[\\w.@+~-]+/)*[\\w.@+~-]+/?",
+      "name": "string.unquoted.path.ddasup"
+    },
+    "numbers": {
+      "patterns": [
+        { "match": "\\b\\d+(?:\\.\\d+)?%", "name": "constant.numeric.percent.ddasup" },
+        { "match": "\\b\\d+(?:\\.\\d+)?\\s?(?:[KMGTPE]i?B|[KMGT]bps|Gbps|Mbps|bytes|B)\\b", "name": "constant.numeric.size.ddasup" },
+        { "match": "\\b\\d+(?:\\.\\d+)?x\\b", "name": "constant.numeric.factor.ddasup" },
+        { "match": "\\b0x[0-9a-fA-F]+\\b", "name": "constant.numeric.hex.ddasup" },
+        { "match": "\\b\\d+(?:\\.\\d+)?\\b", "name": "constant.numeric.ddasup" }
+      ]
+    }
+  }
+}

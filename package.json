@@ -1,0 +1,145 @@
+{
+  "name": "dd-asup-tools",
+  "displayName": "Data Domain Autosupport Tools",
+  "description": "Syntax highlighting, outline, folding, health diagnostics, summary and anonymization for Dell Data Domain (DD OS) autosupport files.",
+  "version": "0.1.0",
+  "publisher": "andrzej-kochaniak",
+  "license": "MIT",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Programming Languages", "Linters", "Other"],
+  "keywords": ["data domain", "autosupport", "asup", "dell", "ddos", "powerprotect"],
+  "main": "./out/extension.js",
+  "activationEvents": ["onLanguage:plaintext", "onLanguage:log"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "ddasup",
+        "aliases": ["Data Domain Autosupport", "ddasup"],
+        "extensions": [".asup"],
+        "filenames": ["autosupport"],
+        "filenamePatterns": ["*autosupport*.txt", "autosupport*", "*.asup.txt"],
+        "firstLine": "^={5,}\\s+GENERAL INFO\\s+={5,}",
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      { "language": "ddasup", "scopeName": "source.ddasup", "path": "./syntaxes/ddasup.tmLanguage.json" }
+    ],
+    "semanticTokenTypes": [
+      { "id": "ddSubsection", "superType": "namespace", "description": "Autosupport subsection title" },
+      { "id": "ddSection", "superType": "namespace", "description": "Autosupport section title" }
+    ],
+    "semanticTokenScopes": [
+      { "language": "ddasup", "scopes": { "ddSubsection": ["markup.heading.subsection.ddasup"], "ddSection": ["markup.heading.section.ddasup"] } }
+    ],
+    "commands": [
+      { "command": "ddasup.showSummary", "title": "Show Health Summary", "category": "DD ASUP", "icon": "$(pulse)" },
+      { "command": "ddasup.gotoSection", "title": "Go to Section…", "category": "DD ASUP", "icon": "$(list-tree)" },
+      { "command": "ddasup.extractSection", "title": "Open Current Section in New Editor", "category": "DD ASUP" },
+      { "command": "ddasup.anonymize", "title": "Anonymize (hostnames, serials, IPs, MACs)", "category": "DD ASUP", "icon": "$(shield)" }
+    ],
+    "menus": {
+      "editor/title": [
+        { "command": "ddasup.showSummary", "when": "editorLangId == ddasup", "group": "navigation@1" },
+        { "command": "ddasup.gotoSection", "when": "editorLangId == ddasup", "group": "navigation@2" }
+      ],
+      "editor/context": [
+        { "command": "ddasup.extractSection", "when": "editorLangId == ddasup", "group": "ddasup@1" },
+        { "command": "ddasup.anonymize", "when": "editorLangId == ddasup", "group": "ddasup@2" }
+      ],
+      "commandPalette": [
+        { "command": "ddasup.showSummary", "when": "editorLangId == ddasup" },
+        { "command": "ddasup.gotoSection", "when": "editorLangId == ddasup" },
+        { "command": "ddasup.extractSection", "when": "editorLangId == ddasup" },
+        { "command": "ddasup.anonymize", "when": "editorLangId == ddasup" }
+      ]
+    },
+    "keybindings": [
+      { "command": "ddasup.gotoSection", "key": "ctrl+alt+g", "mac": "cmd+alt+g", "when": "editorLangId == ddasup" }
+    ],
+    "configuration": {
+      "title": "Data Domain Autosupport",
+      "properties": {
+        "ddasup.autoDetect": { "type": "boolean", "default": true, "description": "Switch plain-text/log files to Data Domain Autosupport mode when the GENERAL INFO header is found in the first lines." },
+        "ddasup.diagnostics.enabled": { "type": "boolean", "default": true, "description": "Report health findings in the Problems panel." },
+        "ddasup.diagnostics.syslogLevel": { "type": "string", "enum": ["off", "error", "warning"], "default": "error", "description": "Lowest syslog level reported as a diagnostic (error = ERROR/CRITICAL only)." },
+        "ddasup.usage.warningThreshold": { "type": "number", "default": 80, "description": "Use% at or above which a capacity row is a warning." },
+        "ddasup.usage.errorThreshold": { "type": "number", "default": 90, "description": "Use% at or above which a capacity row is an error." },
+        "ddasup.license.expiryWarningDays": { "type": "number", "default": 30, "description": "Warn when a license expires within this many days." },
+        "ddasup.codeLens.enabled": { "type": "boolean", "default": true, "description": "Show per-section line/finding counts above section headers." },
+        "ddasup.highlightSectionHeaders": { "type": "boolean", "default": true, "description": "Highlight the full line of main section headers." },
+        "ddasup.anonymize.ips": { "type": "boolean", "default": true, "description": "Replace IPv4 addresses with consistent 10.255.x.y values." },
+        "ddasup.anonymize.macs": { "type": "boolean", "default": true, "description": "Replace MAC addresses and WWNs." },
+        "ddasup.anonymize.emails": { "type": "boolean", "default": true, "description": "Replace e-mail addresses." },
+        "ddasup.anonymize.extraTerms": { "type": "array", "items": { "type": "string" }, "default": [], "description": "Additional strings (customer names, user names, other domains) to redact." },
+        "ddasup.customRules": {
+          "type": "array",
+          "default": [],
+          "markdownDescription": "Extra regex rules reported as diagnostics. Example: `{ \"pattern\": \"Port (\\\\S+) .*offline\", \"severity\": \"warning\", \"message\": \"Port $1 offline\" }`. `$0`–`$9` refer to capture groups.",
+          "items": {
+            "type": "object",
+            "required": ["pattern"],
+            "properties": {
+              "pattern": { "type": "string" },
+              "flags": { "type": "string", "description": "RegExp flags, e.g. i" },
+              "severity": { "type": "string", "enum": ["error", "warning", "info"] },
+              "message": { "type": "string" },
+              "code": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "configurationDefaults": {
+      "[ddasup]": {
+        "editor.semanticHighlighting.enabled": true,
+        "editor.wordWrap": "off",
+        "editor.renderWhitespace": "none"
+      },
+      "editor.tokenColorCustomizations": {
+        "textMateRules": [
+          { "scope": "markup.heading.section.ddasup", "settings": { "foreground": "#4FC1FF", "fontStyle": "bold" } },
+          { "scope": "punctuation.definition.heading.ddasup", "settings": { "foreground": "#4FC1FF" } },
+          { "scope": "markup.heading.subsection.ddasup", "settings": { "foreground": "#C586C0", "fontStyle": "bold" } },
+          { "scope": "markup.heading.minor.ddasup", "settings": { "foreground": "#C586C0", "fontStyle": "italic" } },
+          { "scope": ["comment.separator.ddasup", "comment.line.generated.ddasup", "punctuation.definition.banner.ddasup"], "settings": { "foreground": "#6A7380" } },
+          { "scope": "keyword.severity.critical.ddasup", "settings": { "foreground": "#FF4D4D", "fontStyle": "bold underline" } },
+          { "scope": "keyword.severity.error.ddasup", "settings": { "foreground": "#F14C4C", "fontStyle": "bold" } },
+          { "scope": "keyword.severity.warning.ddasup", "settings": { "foreground": "#E5A50A", "fontStyle": "bold" } },
+          { "scope": "keyword.severity.info.ddasup", "settings": { "foreground": "#3794FF" } },
+          { "scope": "keyword.severity.debug.ddasup", "settings": { "foreground": "#808080" } },
+          { "scope": "markup.deleted.status.bad.ddasup", "settings": { "foreground": "#F14C4C", "fontStyle": "bold" } },
+          { "scope": "markup.inserted.status.good.ddasup", "settings": { "foreground": "#4EC94E" } },
+          { "scope": "constant.language.ddasup", "settings": { "foreground": "#569CD6" } },
+          { "scope": "entity.name.tag.evt.ddasup", "settings": { "foreground": "#FF8C00", "fontStyle": "bold" } },
+          { "scope": "entity.name.tag.alertid.ddasup", "settings": { "foreground": "#FF8C00" } },
+          { "scope": "constant.other.date.ddasup", "settings": { "foreground": "#2EB8A6" } },
+          { "scope": "entity.name.host.ddasup", "settings": { "foreground": "#9CDCFE" } },
+          { "scope": "entity.name.function.process.ddasup", "settings": { "foreground": "#DCDCAA" } },
+          { "scope": "constant.numeric.pid.ddasup", "settings": { "foreground": "#808080" } },
+          { "scope": "variable.other.key.ddasup", "settings": { "foreground": "#9CDCFE", "fontStyle": "bold" } },
+          { "scope": "variable.other.key.registry.ddasup", "settings": { "foreground": "#9CDCFE" } },
+          { "scope": "string.unquoted.value.ddasup", "settings": { "foreground": "#CE9178" } },
+          { "scope": ["string.other.ip.ddasup", "string.other.mac.ddasup", "string.other.email.ddasup"], "settings": { "foreground": "#D7BA7D" } },
+          { "scope": "string.unquoted.path.ddasup", "settings": { "foreground": "#B5A1E6" } },
+          { "scope": "constant.numeric.percent.ddasup", "settings": { "foreground": "#B5CEA8", "fontStyle": "bold" } },
+          { "scope": ["constant.numeric.size.ddasup", "constant.numeric.factor.ddasup"], "settings": { "foreground": "#B5CEA8", "fontStyle": "bold" } },
+          { "scope": ["constant.numeric.ddasup", "constant.numeric.hex.ddasup"], "settings": { "foreground": "#B5CEA8" } }
+        ]
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -watch -p .",
+    "test": "npm run compile && node test/run.js",
+    "package": "vsce package --no-dependencies"
+  },
+  "repository": { "type": "git", "url": "https://github.com/andrwb/dd-asup-tools" },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/vsce": "^4.1.0",
+    "typescript": "^5.0.0"
+  }
+}

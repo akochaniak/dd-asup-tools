@@ -1,0 +1,8 @@
+node_modules/
+out/
+*.vsix
+*.log
+.DS_Store
+# never commit real autosupports
+*autosupport*.txt
+*.asup
