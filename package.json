@@ -135,7 +135,7 @@
     "test": "npm run compile && node test/run.js",
     "package": "vsce package --no-dependencies"
   },
-  "repository": { "type": "git", "url": "https://github.com/andrwb/dd-asup-tools" },
+  "repository": { "type": "git", "url": "https://github.com/akochaniak/dd-asup-tools" },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/vscode": "~1.85.0",

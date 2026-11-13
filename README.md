@@ -53,7 +53,7 @@ Colours come from `configurationDefaults → editor.tokenColorCustomizations`. T
 
 ## Install
 
-Download the `.vsix` from [Releases](https://github.com/andrwb/dd-asup-tools/releases) and run `code --install-extension dd-asup-tools-<version>.vsix`.
+Download the `.vsix` from [Releases](https://github.com/akochaniak/dd-asup-tools/releases) and run `code --install-extension dd-asup-tools-<version>.vsix`.
 
 ## Release
 
